@@ -1,0 +1,77 @@
+name: verideumdefence
+
+services:
+  # VerideumDefence PostgreSQL database
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ciphera
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ciphera}
+      POSTGRES_DB: ciphera
+    ports:
+      - "5432:5432"
+    volumes:
+      - verideumdefence-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ciphera"]
+      interval: 5s
+      retries: 10
+    networks:
+      - verideumdefence-network
+
+  # Backend API
+  api:
+    build: ./backend
+    environment:
+      VERIDEUMDEFENCE_DATABASE_URL: postgresql+psycopg2://ciphera:${POSTGRES_PASSWORD:-ciphera}@db:5432/ciphera
+      VERIDEUMDEFENCE_SECRET_KEY: ${VERIDEUMDEFENCE_SECRET_KEY:-${CIPHERA_SECRET_KEY:-local-development-secret-change-before-deployment}}
+      VERIDEUMDEFENCE_ZAP_API_URL: http://zap:8080
+      VERIDEUMDEFENCE_ZAP_API_KEY: ${ZAP_API_KEY:-verideumdefence-local-zap-key}
+      VERIDEUMDEFENCE_CORS_ORIGINS: '["http://localhost:5173","http://localhost:3000","http://127.0.0.1:5173"]'
+    ports:
+      - "${VERIDEUMDEFENCE_API_PORT:-${CIPHERA_API_PORT:-8001}}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      zap:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - verideumdefence-network
+
+  # Frontend
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:5173/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - verideumdefence-network
+
+  # OWASP ZAP Scanner
+  zap:
+    image: zaproxy/zap-stable:latest
+    networks:
+      - verideumdefence-network
+    command: ["zap.sh", "-daemon", "-host", "0.0.0.0", "-port", "8080", "-config", "api.key=${ZAP_API_KEY:-verideumdefence-local-zap-key}", "-config", "api.addrs.addr.name=.*", "-config", "api.addrs.addr.regex=true"]
+    environment:
+      ZAP_API_KEY: ${ZAP_API_KEY:-verideumdefence-local-zap-key}
+
+volumes:
+  verideumdefence-db:
+    name: ciphera-cybersecurity-source_ciphera-db
+
+networks:
+  verideumdefence-network:
+    driver: bridge

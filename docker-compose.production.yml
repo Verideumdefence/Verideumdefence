@@ -1,0 +1,27 @@
+services:
+  db:
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.production}
+    ports: !override []
+    restart: unless-stopped
+
+  api:
+    environment:
+      VERIDEUMDEFENCE_ENVIRONMENT: production
+      VERIDEUMDEFENCE_DATABASE_URL: "postgresql+psycopg2://ciphera:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.production}@db:5432/ciphera"
+      VERIDEUMDEFENCE_SECRET_KEY: ${VERIDEUMDEFENCE_SECRET_KEY:?Set VERIDEUMDEFENCE_SECRET_KEY in .env.production}
+      VERIDEUMDEFENCE_CORS_ORIGINS: ${VERIDEUMDEFENCE_CORS_ORIGINS:?Set VERIDEUMDEFENCE_CORS_ORIGINS in .env.production}
+      VERIDEUMDEFENCE_ZAP_API_KEY: ${ZAP_API_KEY:?Set ZAP_API_KEY in .env.production}
+    ports: !override []
+    restart: unless-stopped
+
+  frontend:
+    ports: !override
+      - "${FRONTEND_PORT:-80}:5173"
+    restart: unless-stopped
+
+  zap:
+    image: ${ZAP_IMAGE:?Set ZAP_IMAGE to a pinned zaproxy/zap-stable tag in .env.production}
+    environment:
+      ZAP_API_KEY: ${ZAP_API_KEY:?Set ZAP_API_KEY in .env.production}
+    restart: unless-stopped
