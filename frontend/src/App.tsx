@@ -48,6 +48,8 @@ import Error500 from '@/pages/errors/500';
 
 const queryClient = new QueryClient();
 
+const CONTACT_EMAIL = 'Veridiumdefence@gmail.com';
+
 const services = [
   {
     number: '01',
@@ -1332,7 +1334,7 @@ function Home() {
                   <span className="assessment-kicker mono">REQUEST RECEIVED</span>
                   <strong>Thank you. Your request has been sent.</strong>
                   <p>
-                    Our team can now review the information you shared and follow up by email.
+                    Our team can now review the information you shared and follow up at {CONTACT_EMAIL}.
                   </p>
                   <button className="button-quiet" type="button" onClick={() => setSubmitted(false)}>
                     Submit another request <ArrowRight />

@@ -8,6 +8,7 @@ from app.api.deps import get_current_admin
 from app.db.session import get_db
 from app.models import Inquiry, User
 from app.schemas.inquiry import InquiryCreate, InquiryRead
+from app.services.email import send_inquiry_notification
 
 router = APIRouter(prefix="/inquiries", tags=["inquiries"])
 limiter = Limiter(key_func=get_remote_address)
@@ -22,6 +23,7 @@ def create_inquiry(
     db.add(inquiry)
     db.commit()
     db.refresh(inquiry)
+    send_inquiry_notification(inquiry)
     return inquiry
 
 

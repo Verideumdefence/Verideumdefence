@@ -50,6 +50,62 @@ class Settings(BaseSettings):
         default='["http://localhost:5173", "http://localhost:3000"]',
         validation_alias=AliasChoices("VERIDEUMDEFENCE_CORS_ORIGINS", "CIPHERA_CORS_ORIGINS"),
     )
+    contact_email: str = Field(
+        default="Veridiumdefence@gmail.com",
+        validation_alias=AliasChoices(
+            "VERIDIUMDEFENCE_CONTACT_EMAIL",
+            "VERIDEUMDEFENCE_CONTACT_EMAIL",
+            "CIPHERA_CONTACT_EMAIL",
+        ),
+    )
+    smtp_host: str = Field(
+        default="",
+        validation_alias=AliasChoices(
+            "VERIDIUMDEFENCE_SMTP_HOST",
+            "VERIDEUMDEFENCE_SMTP_HOST",
+            "CIPHERA_SMTP_HOST",
+        ),
+    )
+    smtp_port: int = Field(
+        default=587,
+        validation_alias=AliasChoices(
+            "VERIDIUMDEFENCE_SMTP_PORT",
+            "VERIDEUMDEFENCE_SMTP_PORT",
+            "CIPHERA_SMTP_PORT",
+        ),
+    )
+    smtp_username: str = Field(
+        default="",
+        validation_alias=AliasChoices(
+            "VERIDIUMDEFENCE_SMTP_USERNAME",
+            "VERIDEUMDEFENCE_SMTP_USERNAME",
+            "CIPHERA_SMTP_USERNAME",
+        ),
+    )
+    smtp_password: str = Field(
+        default="",
+        validation_alias=AliasChoices(
+            "VERIDIUMDEFENCE_SMTP_PASSWORD",
+            "VERIDEUMDEFENCE_SMTP_PASSWORD",
+            "CIPHERA_SMTP_PASSWORD",
+        ),
+    )
+    smtp_use_tls: bool = Field(
+        default=True,
+        validation_alias=AliasChoices(
+            "VERIDIUMDEFENCE_SMTP_USE_TLS",
+            "VERIDEUMDEFENCE_SMTP_USE_TLS",
+            "CIPHERA_SMTP_USE_TLS",
+        ),
+    )
+    smtp_from_email: str = Field(
+        default="",
+        validation_alias=AliasChoices(
+            "VERIDIUMDEFENCE_SMTP_FROM_EMAIL",
+            "VERIDEUMDEFENCE_SMTP_FROM_EMAIL",
+            "CIPHERA_SMTP_FROM_EMAIL",
+        ),
+    )
     zap_api_url: str = Field(
         default="http://zap:8080",
         validation_alias=AliasChoices("VERIDEUMDEFENCE_ZAP_API_URL", "CIPHERA_ZAP_API_URL"),

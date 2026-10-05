@@ -6,7 +6,17 @@ import { Mail, Clock, User, UserCheck, Plus, Save, X, Search, Trash2, Check, Eye
 import { api } from '@/lib/api';
 import type { Message, User as TeamMember } from '@/types';
 
-const emptyMessageDraft = {
+const CONTACT_EMAIL = 'Veridiumdefence@gmail.com';
+const CONTACT_INBOX_ID = 'contact-inbox';
+
+type MessageRecipientId = number | typeof CONTACT_INBOX_ID;
+
+const emptyMessageDraft: {
+  subject: string;
+  to_id: MessageRecipientId;
+  to_name: string;
+  content: string;
+} = {
   subject: '',
   to_id: 0,
   to_name: '',
@@ -20,6 +30,8 @@ export default function AdminMessages() {
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [draft, setDraft] = useState(emptyMessageDraft);
+
+  const isCustomerInboxRecipient = draft.to_id === CONTACT_INBOX_ID;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
@@ -99,8 +111,23 @@ export default function AdminMessages() {
   const handleCreateMessage = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!draft.subject.trim() || !draft.content.trim() || !draft.to_id) {
+    if (!draft.subject.trim() || !draft.content.trim() || (!draft.to_id && draft.to_id !== 0) || (draft.to_id === 0 && !isCustomerInboxRecipient)) {
       setError('Subject, content, and recipient are required.');
+      return;
+    }
+
+    if (isCustomerInboxRecipient) {
+      const subject = draft.subject.trim();
+      const content = draft.content.trim();
+      const mailto = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`Customer inbox inquiry\n\n${content}`)}`;
+      window.location.href = mailto;
+      setShowForm(false);
+      setDraft({
+        subject: '',
+        to_id: team[0]?.id ?? 0,
+        to_name: team[0]?.full_name || team[0]?.email || '',
+        content: '',
+      });
       return;
     }
 
@@ -109,7 +136,7 @@ export default function AdminMessages() {
       setError('');
 
       const created = await api.post('/messages', {
-        to_id: draft.to_id,
+        to_id: Number(draft.to_id),
         to_name: draft.to_name,
         subject: draft.subject.trim(),
         content: draft.content.trim(),
@@ -162,16 +189,25 @@ export default function AdminMessages() {
       {error && <div role="alert" className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
       {showForm && (
         <form onSubmit={handleCreateMessage} className="mb-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="mb-4 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-700">
+            Default customer inbox: <span className="font-semibold">{CONTACT_EMAIL}</span>
+          </div>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-700">Recipient</label>
-              <select value={draft.to_id} onChange={(e) => {
-                const selected = team.find((member) => member.id === Number(e.target.value));
-                setDraft((current) => ({ ...current, to_id: Number(e.target.value), to_name: selected?.full_name || selected?.email || '' }));
+              <select value={String(draft.to_id)} onChange={(e) => {
+                const nextValue = e.target.value;
+                if (nextValue === CONTACT_INBOX_ID) {
+                  setDraft((current) => ({ ...current, to_id: CONTACT_INBOX_ID, to_name: CONTACT_EMAIL }));
+                  return;
+                }
+                const selected = team.find((member) => member.id === Number(nextValue));
+                setDraft((current) => ({ ...current, to_id: Number(nextValue), to_name: selected?.full_name || selected?.email || '' }));
               }} className="w-full rounded-md border border-gray-300 px-3 py-2">
                 {team.map((member) => (
-                  <option key={member.id} value={member.id}>{member.full_name || member.email}</option>
+                  <option key={member.id} value={String(member.id)}>{member.full_name || member.email}</option>
                 ))}
+                <option value={CONTACT_INBOX_ID}>{CONTACT_EMAIL}</option>
               </select>
             </div>
             <div>
@@ -188,7 +224,7 @@ export default function AdminMessages() {
               <X className="h-4 w-4" /> Cancel
             </button>
             <button type="submit" disabled={isSubmitting} className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60">
-              <Save className="h-4 w-4" /> {isSubmitting ? 'Sending...' : 'Send message'}
+              <Save className="h-4 w-4" /> {isSubmitting ? 'Sending...' : isCustomerInboxRecipient ? 'Open mail draft' : 'Send message'}
             </button>
           </div>
         </form>
