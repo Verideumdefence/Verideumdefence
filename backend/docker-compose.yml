@@ -21,13 +21,19 @@ services:
       VERIDEUMDEFENCE_SECRET_KEY: ${VERIDEUMDEFENCE_SECRET_KEY:-${CIPHERA_SECRET_KEY:-local-development-secret-change-before-deployment}}
       VERIDEUMDEFENCE_ZAP_API_URL: http://zap:8080
       VERIDEUMDEFENCE_ZAP_API_KEY: ${ZAP_API_KEY:-verideumdefence-local-zap-key}
+      VERIDEUMDEFENCE_CORS_ORIGINS: '["http://localhost:5173","http://localhost:3000","http://127.0.0.1:5173"]'
     ports:
-      - "8000:8000"
+      - "${VERIDEUMDEFENCE_API_PORT:-${CIPHERA_API_PORT:-8001}}:8000"
     depends_on:
       db:
         condition: service_healthy
       zap:
         condition: service_started
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
 
   zap:
     image: zaproxy/zap-stable:latest
