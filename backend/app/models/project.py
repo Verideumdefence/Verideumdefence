@@ -9,6 +9,7 @@ from app.db.base import Base
 
 if TYPE_CHECKING:
     from app.models.client import Client
+    from app.models.document import Document
 
 
 class ProjectStatus(str, enum.Enum):
