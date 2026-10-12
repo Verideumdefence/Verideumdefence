@@ -535,6 +535,15 @@
 
 .protection-section .section-intro h2 {
   max-width: 700px;
+  margin: 17px 0 0;
+  color: hsl(var(--foreground));
+  font: 600 clamp(2.4rem, 5vw, 4.6rem)/.98 'Space Grotesk', sans-serif;
+  letter-spacing: -.07em;
+}
+
+.protection-section .section-intro h2 em {
+  color: hsl(var(--primary));
+  font-style: normal;
 }
 
 .protection-section .section-intro p {
