@@ -192,6 +192,8 @@ function Home() {
         visitorId = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
         localStorage.setItem(storageKey, visitorId);
       }
+      console.log('[VISIT DEBUG] API_BASE_URL:', import.meta.env.VITE_API_URL);
+      console.log('[VISIT DEBUG] API helper:', api);
       void api.post('/website/visits', { visitor_key: visitorId }).catch(() => undefined);
     } catch {
       // Visitor counting is optional; the website remains usable when storage is disabled.
