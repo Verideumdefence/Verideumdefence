@@ -1,5 +1,6 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
-
+console.log('[API DEBUG] VITE_API_URL:', import.meta.env.VITE_API_URL);
+console.log('[API DEBUG] API_BASE_URL:', API_BASE_URL);
 const getAuthHeaders = () => {
   const token = localStorage.getItem('access_token');
   const headers: Record<string, string> = {
