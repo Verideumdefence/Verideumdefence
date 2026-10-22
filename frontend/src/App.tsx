@@ -194,7 +194,7 @@ function Home() {
       }
       console.log('[VISIT DEBUG] API_BASE_URL:', import.meta.env.VITE_API_URL);
       console.log('[VISIT DEBUG] API helper:', api);
-      void api.post('/website/visits', { visitor_key: visitorId }).catch(() => undefined);
+      void api.post('/website/visits', { visitor_key: visitorId }, true).catch(() => undefined);
     } catch {
       // Visitor counting is optional; the website remains usable when storage is disabled.
     }
@@ -212,7 +212,7 @@ function Home() {
         company: form.get('company') || null,
         service: form.get('securityNeed'),
         description: form.get('message'),
-      });
+      }, true);
       setSubmitted(true);
     } catch (error) {
       setContactError(error instanceof Error ? error.message : 'Unable to send your request. Please try again.');
@@ -232,7 +232,7 @@ function Home() {
         reviewer_name: form.get('reviewerName'),
         rating: Number(form.get('rating')),
         review: form.get('review'),
-      });
+      }, true);
       setReviewSubmitted(true);
       reviewForm.reset();
     } catch (error) {

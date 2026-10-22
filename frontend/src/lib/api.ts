@@ -4,12 +4,12 @@ const API_BASE_URL = (
 ).replace(/\/+$/, '');
 console.log('[API DEBUG] VITE_API_URL:', import.meta.env.VITE_API_URL);
 console.log('[API DEBUG] API_BASE_URL:', API_BASE_URL);
-const getAuthHeaders = () => {
+const getAuthHeaders = (skipAuth = false) => {
   const token = localStorage.getItem('access_token');
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
-  if (token) {
+  if (!skipAuth && token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
   return headers;
@@ -28,45 +28,45 @@ const handleResponse = async (response: Response) => {
 };
 
 export const api = {
-  get: async (endpoint: string) => {
+  get: async (endpoint: string, skipAuth = false) => {
     const response = await fetch(`${API_BASE_URL}/api/v1${endpoint}`, {
       method: 'GET',
-      headers: getAuthHeaders(),
+      headers: getAuthHeaders(skipAuth),
     });
     return handleResponse(response);
   },
 
-  post: async (endpoint: string, data: unknown) => {
+  post: async (endpoint: string, data: unknown, skipAuth = false) => {
     const response = await fetch(`${API_BASE_URL}/api/v1${endpoint}`, {
       method: 'POST',
-      headers: getAuthHeaders(),
+      headers: getAuthHeaders(skipAuth),
       body: JSON.stringify(data),
     });
     return handleResponse(response);
   },
 
-  put: async (endpoint: string, data: unknown) => {
+  put: async (endpoint: string, data: unknown, skipAuth = false) => {
     const response = await fetch(`${API_BASE_URL}/api/v1${endpoint}`, {
       method: 'PUT',
-      headers: getAuthHeaders(),
+      headers: getAuthHeaders(skipAuth),
       body: JSON.stringify(data),
     });
     return handleResponse(response);
   },
 
-  patch: async (endpoint: string, data: unknown) => {
+  patch: async (endpoint: string, data: unknown, skipAuth = false) => {
     const response = await fetch(`${API_BASE_URL}/api/v1${endpoint}`, {
       method: 'PATCH',
-      headers: getAuthHeaders(),
+      headers: getAuthHeaders(skipAuth),
       body: JSON.stringify(data),
     });
     return handleResponse(response);
   },
 
-  delete: async (endpoint: string) => {
+  delete: async (endpoint: string, skipAuth = false) => {
     const response = await fetch(`${API_BASE_URL}/api/v1${endpoint}`, {
       method: 'DELETE',
-      headers: getAuthHeaders(),
+      headers: getAuthHeaders(skipAuth),
     });
     return handleResponse(response);
   },
