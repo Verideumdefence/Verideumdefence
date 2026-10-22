@@ -1,4 +1,7 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+const API_BASE_URL = (
+  import.meta.env.VITE_API_URL ||
+  'https://verideumdefence-backend.onrender.com'
+).replace(/\/+$/, '');
 console.log('[API DEBUG] VITE_API_URL:', import.meta.env.VITE_API_URL);
 console.log('[API DEBUG] API_BASE_URL:', API_BASE_URL);
 const getAuthHeaders = () => {
